@@ -68,7 +68,7 @@ You can easily modify the bash scripts to train our models. Just set ```TRAIN.EN
 
 ### Evaluation metrics
 
-Although our codes are configured to evaluate the model's performance after each epoch, you can also manually evaluate your model's predictions using our evaluation codes and implementations. For this purpose, you can run the [evaluate script]() and provide the required paths in the arguments as documented in the script. 
+Although our codes are configured to evaluate the model's performance after each epoch, you can also manually evaluate your model's predictions using our evaluation codes and implementations. For this purpose, you can calculate the features for each dataset with the [scripts](run_files/extract_features/) and evaluate the model running [evaluate script](run_files/tcm/) and provide the required paths in the arguments as documented in the script. 
 
 
 ## Citation
