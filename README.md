@@ -58,6 +58,8 @@ The [DATA_PREPARATION.md](DATA_PREPARATION.md) file contains detailed instructio
 We provide bash scripts with the default parameters to evaluate each dataset. Please first download our preprocessed data files and pretrained models as instructed earlier and run the following commands to run evaluation on each task:
 
 ```sh
+# Calculate features running the script corresponding to the desired dataset
+$ sh run_files/extract_features/{dataset}_phases
 # Run the script corresponding to the desired dataset to evaluate
 $ sh run_files/tcm/{dataset}_phases
 ```
@@ -65,10 +67,6 @@ $ sh run_files/tcm/{dataset}_phases
 ### Training MuST
 
 You can easily modify the bash scripts to train our models. Just set ```TRAIN.ENABLE True``` on the desired script to enable training, and set ```TEST.ENABLE False``` to avoid testing before training. You might also want to modify ```TRAIN.CHECKPOINT_FILE_PATH``` to the model weights you want to use as initialization. You can modify the [config files](configs/) or the [bash scripts](run_files/) to modify the architecture design, training schedule, video input design, etc. We provide documentation for each hyperparameter in the [defaults script](./must/config/defaults.py). For the Temporal Consistency Module (TCM), ensure the temporal chunks are being used by setting ```TEMPORAL_MODULE.CHUNKS True```. For more details to train MuST, refer to [TRAINING.md](TRAINING.md)
-
-### Evaluation metrics
-
-Although our codes are configured to evaluate the model's performance after each epoch, you can also manually evaluate your model's predictions using our evaluation codes and implementations. For this purpose, you can calculate the features for each dataset with the [scripts](run_files/extract_features/) and evaluate the model running [evaluate script](run_files/tcm/) and provide the required paths in the arguments as documented in the script. 
 
 
 ## Citation
