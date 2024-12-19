@@ -29,8 +29,8 @@ run_feature_experiment() {
     COCO_ANN_PATH="./data/$DATASET/annotations/$TRAIN_FOLD/${TEST_FOLD}_long-term_anns.json"
     CHECKPOINT="./model_weights/multiterm_frame_encoder/MISAW/train/checkpoint_best_phases.pyth"
     
-    # MViT features path
-    MVIT_FEATS_PATH="./outputs/MuST_feats/$TASK/$DATASET/$TRAIN_FOLD/$EXP_PREFIX"
+    # Features path
+    MVIT_FEATS_PATH="./data/"$DATASET"/frames_features/$TRAIN_FOLD"
 
     mkdir -p $OUTPUT_DIR
 

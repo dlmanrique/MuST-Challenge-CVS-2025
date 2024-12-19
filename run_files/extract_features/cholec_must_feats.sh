@@ -30,7 +30,7 @@ run_feature_experiment() {
     CHECKPOINT="./model_weights/multiterm_frame_encoder/cholec80/train/checkpoint_best_phases.pyth"
     
     # Features path
-    MVIT_FEATS_PATH="./outputs/MuST_feats/$TASK/$DATASET/$TRAIN_FOLD/$EXP_PREFIX"
+    MVIT_FEATS_PATH="./data/"$DATASET"/frames_features/$TRAIN_FOLD"
 
     mkdir -p $OUTPUT_DIR
 

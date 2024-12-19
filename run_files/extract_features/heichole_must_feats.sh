@@ -27,10 +27,10 @@ run_feature_experiment() {
     OUTPUT_DIR="outputs/$DATASET/$TASK/$EXPERIMENT_NAME"
     ANNOT_DIR="./data/$DATASET/annotations/$TRAIN_FOLD"
     COCO_ANN_PATH="./data/$DATASET/annotations/$TRAIN_FOLD/${TEST_FOLD}_long-term_anns.json"
-    CHECKPOINT="/home/aperezr20/endovis/TAPIS_Transformer/TAPIS/outputs/heichole/PHASES/arch_MMViT-frames_24-sr_1,2,4,6-online_True/train/checkpoint_best_phases.pyth"
+    CHECKPOINT="./model_weights/multiterm_frame_encoder/heichole/train/checkpoint_best_phases.pyth"
     
-    # MViT features path
-    MVIT_FEATS_PATH="./outputs/MuST_feats/$TASK/$DATASET/$TRAIN_FOLD/$EXP_PREFIX"
+    # Features path
+    MVIT_FEATS_PATH="./data/"$DATASET"/frames_features/$TRAIN_FOLD"
 
     mkdir -p $OUTPUT_DIR
 
