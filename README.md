@@ -2,7 +2,7 @@
 
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/must-multi-scale-transformers-for-surgical/surgical-phase-recognition-on-grasp)](https://paperswithcode.com/sota/surgical-phase-recognition-on-grasp?p=must-multi-scale-transformers-for-surgical) 	
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/must-multi-scale-transformers-for-surgical/surgical-phase-recognition-on-heichole)](https://paperswithcode.com/sota/surgical-phase-recognition-on-heichole?p=must-multi-scale-transformers-for-surgical) [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/must-multi-scale-transformers-for-surgical/surgical-phase-recognition-on-misaw)](https://paperswithcode.com/sota/surgical-phase-recognition-on-misaw?p=must-multi-scale-transformers-for-surgical)
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/must-multi-scale-transformers-for-surgical/surgical-phase-recognition-on-heichole)](https://paperswithcode.com/sota/surgical-phase-recognition-on-heichole?p=must-multi-scale-transformers-for-surgical) [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/must-multi-scale-transformers-for-surgical/surgical-phase-recognition-on-misaw)](https://paperswithcode.com/sota/surgical-phase-recognition-on-misaw?p=must-multi-scale-transformers-for-surgical) [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/must-multi-scale-transformers-for-surgical/surgical-phase-recognition-on-cholec80-1)](https://paperswithcode.com/sota/surgical-phase-recognition-on-cholec80-1?p=must-multi-scale-transformers-for-surgical)
 
 <div align="center">
   <h3>MuST Architecture</h3>
