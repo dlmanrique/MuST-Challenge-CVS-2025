@@ -1,5 +1,9 @@
 # MuST: Multi-Scale Transformers for Surgical Phase Recognition
 
+
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/must-multi-scale-transformers-for-surgical/surgical-phase-recognition-on-grasp)](https://paperswithcode.com/sota/surgical-phase-recognition-on-grasp?p=must-multi-scale-transformers-for-surgical) 	
+[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/must-multi-scale-transformers-for-surgical/surgical-phase-recognition-on-heichole)](https://paperswithcode.com/sota/surgical-phase-recognition-on-heichole?p=must-multi-scale-transformers-for-surgical) [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/must-multi-scale-transformers-for-surgical/surgical-phase-recognition-on-misaw)](https://paperswithcode.com/sota/surgical-phase-recognition-on-misaw?p=must-multi-scale-transformers-for-surgical)
+
 <div align="center">
   <h3>MuST Architecture</h3>
   <img src="/src/MuST_architecture.png" alt="MuST Architecture"/>
@@ -8,6 +12,7 @@
   <img src="/src/MTFE_architecture.png" alt="MTFE Architecture"/>
 </div>
 <br/>
+
 
 # Model Description
 
