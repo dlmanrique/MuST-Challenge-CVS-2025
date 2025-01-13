@@ -28,8 +28,8 @@ FRAME_LIST="./data/"$DATASET"/frame_lists"
 ANNOT_DIR="./data/"$DATASET"/annotations/"$TRAIN_FOLD
 COCO_ANN_PATH="./data/"$DATASET"/annotations/"$TRAIN_FOLD"/"$TEST_FOLD"_long-term_anns.json"
 
-TT_TRAIN="./data/"$DATASET"/frames_features/"$TRAIN_FOLD
-TT_VAL="./data/"$DATASET"/frames_features/"$TRAIN_FOLD
+TT_TRAIN="./data/"$DATASET"/frames_features/$TRAIN_FOLD"
+TT_VAL="./data/"$DATASET"/frames_features/$TRAIN_FOLD"
 
 CHECKPOINT="./model_weights/temporal_consistency_module/"$DATASET"/"$TRAIN_FOLD"/checkpoint_best_phases.pyth"
 

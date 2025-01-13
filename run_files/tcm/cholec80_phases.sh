@@ -23,13 +23,13 @@ DATASET="cholec80"
 EXPERIMENT_NAME="$ARCH-chunks_$CHUNK_SIZE-overlap_$OVERLAPPING-dmodel_$S_D_MODEL-catdim_$S_CAT_DIM-layers_$S_LAYERS-heads_$S_HEADS-opt_$OPT-lr_$LR"
 CONFIG_PATH="configs/"$DATASET"/"$ARCH"_"$TASK".yaml"
 FRAME_DIR="./data/"$DATASET"/frames"
-OUTPUT_DIR="outputs/$DATASET/fold"$TRAIN_FOLD"/"$TASK"/"$EXPERIMENT_NAME
+OUTPUT_DIR="outputs/$DATASET/"$TRAIN_FOLD"/"$TASK"/"$EXPERIMENT_NAME
 FRAME_LIST="./data/"$DATASET"/frame_lists"
 ANNOT_DIR="./data/"$DATASET"/annotations/"$TRAIN_FOLD
 COCO_ANN_PATH="./data/"$DATASET"/annotations/"$TRAIN_FOLD"/"$TEST_FOLD"_long-term_anns.json"
 
-TT_TRAIN="./data/"$DATASET"/frames_features"
-TT_VAL="./data/"$DATASET"/frames_features"
+TT_TRAIN="./data/"$DATASET"/frames_features/$TRAIN_FOLD"
+TT_VAL="./data/"$DATASET"/frames_features/$TRAIN_FOLD"
 
 CHECKPOINT="./model_weights/temporal_consistency_module/"$DATASET"/train/checkpoint_best_phases.pyth"
 
