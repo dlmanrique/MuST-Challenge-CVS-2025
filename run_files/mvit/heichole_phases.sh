@@ -19,16 +19,16 @@ OUTPUT_DIR="outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
 FRAME_LIST="./data/"$DATASET"/frame_lists"
 ANNOT_DIR="./data/"$DATASET"/annotations/"$TRAIN_FOLD
 COCO_ANN_PATH="./data/"$DATASET"/annotations/"$TRAIN_FOLD"/"$TEST_FOLD"_long-term_anns.json"
-CHECKPOINT="./model_weights/pretrained_models/k400_16.pyth"
+CHECKPOINT="./model_weights/pretrained_models/K400_MVIT_B_16x4_CONV.pyth"
 TYPE="pytorch"
 
 export PYTHONPATH="./must:$PYTHONPATH"
 
 mkdir -p $OUTPUT_DIR
 
-CUDA_VISIBLE_DEVICES=0,2,3 python -B tools/run_net.py \
+CUDA_VISIBLE_DEVICES=3 python -B tools/run_net.py \
 --cfg $CONFIG_PATH \
-NUM_GPUS 3 \
+NUM_GPUS 1 \
 TRAIN.DATASET $DATASET \
 TEST.DATASET $DATASET \
 TRAIN.CHECKPOINT_FILE_PATH $CHECKPOINT \

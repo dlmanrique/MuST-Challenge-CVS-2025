@@ -287,7 +287,7 @@ def train(cfg):
     start_epoch = cu.load_train_checkpoint(
         cfg, model, optimizer, scaler if cfg.TRAIN.MIXED_PRECISION else None
     )
-
+    breakpoint()
     # Create the video train and val loaders.
     train_loader = loader.construct_loader(cfg, "train")
     val_loader = loader.construct_loader(cfg, "val")
