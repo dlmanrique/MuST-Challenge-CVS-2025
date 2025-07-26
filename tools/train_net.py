@@ -49,6 +49,7 @@ def train_epoch(
 
     """
     # Enable train mode.
+    
     model.train()
     train_meter.iter_tic()
     data_size = len(train_loader)
@@ -58,6 +59,7 @@ def train_epoch(
     loss_dict = {task:losses.get_loss_func(loss_funs[t_id])(reduction=cfg.SOLVER.REDUCTION) for t_id,task in enumerate(tasks)}
     type_dict = {task:losses.get_loss_type(loss_funs[t_id],cfg.MODEL.PRECISION) for t_id,task in enumerate(tasks)}
     loss_weights = cfg.TASKS.LOSS_WEIGHTS
+
     for cur_iter, (inputs, labels, data, image_names) in enumerate(train_loader):
 
         # Transfer the data to the current GPU device.
@@ -86,12 +88,13 @@ def train_epoch(
 
         train_meter.data_toc()
 
-        with torch.cuda.amp.autocast(enabled=cfg.TRAIN.MIXED_PRECISION):
+        with torch.amp.autocast('cuda', enabled=cfg.TRAIN.MIXED_PRECISION):
             sequence_mask = data["sequence_mask"] if cfg.TEMPORAL_MODULE.CHUNKS else None
             if sequence_mask is not None:
                 preds = model(inputs, sequence_mask)
             else:
                 preds = model(inputs)
+
             # Explicitly declare reduction to mean and compute the loss for each task.
             loss = []
             for task in loss_dict:
@@ -291,7 +294,7 @@ def train(cfg):
     # Create the video train and val loaders.
     train_loader = loader.construct_loader(cfg, "train")
     val_loader = loader.construct_loader(cfg, "val")
-    breakpoint()
+
     if cfg.TEMPORAL_MODULE.CHUNKS == False:
         # Create meters.
         train_meter = SurgeryMeter(len(train_loader), cfg, mode="train")

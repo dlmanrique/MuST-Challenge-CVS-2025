@@ -80,7 +80,7 @@ TASKS:
   LOSS_FUNC: ["cross_entropy"]
   HEAD_ACT:  ["softmax"]
   LOSS_WEIGHTS:  [1.0] 
-  METRICS: ["f1"]  
+  METRICS: ["mAP"]  
 DATA_LOADER:
   NUM_WORKERS: 0
   PIN_MEMORY: True

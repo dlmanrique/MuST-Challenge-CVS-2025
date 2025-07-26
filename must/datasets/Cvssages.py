@@ -108,7 +108,6 @@ class Cvssages(SurgicalDataset):
         else:
             frame_identifier = complete_name
             
-
         """images_to_show = imgs[0] if isinstance(imgs, list) else imgs  # En caso de slowfast o pathway input
         print(f"Mostrando {len(images_to_show)} frames del clip: {frame_identifier}")
         images_to_show = images_to_show.permute(1, 0, 2, 3)

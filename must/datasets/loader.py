@@ -48,13 +48,16 @@ def detection_collate(batch):
             collated_extra_data[key] = default_collate(data).float()
     
     collated_labels = {}
+
     for key in all_labels[0]:
         data = [d[key] for d in all_labels]
 
         #TODO: REMOVE when all done
         assert all(type(data[0]) == type(d) for d in data), f'Inconsistent data type {data}'
         if isinstance(data[0],list):
-            data = list(itertools.chain(*data))
+            #TODO: ignore this for cvs annots, find a more elegant way to program this
+            #data = list(itertools.chain(*data))
+            pass
         else:
             #TODO: REMOVE when all done
             assert isinstance(data[0],int) or isinstance(data[0],np.ndarray), f'Type {type(data[0])} not supported'
