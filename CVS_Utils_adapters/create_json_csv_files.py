@@ -2,7 +2,10 @@
 
 import os
 import json
+import glob
 import pandas as pd
+from tqdm import tqdm
+from PIL import Image
 
 def load_json(file_path):
     """
@@ -52,20 +55,70 @@ def majority_vote_consensus(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def frame_list_creator(df: pd.DataFrame, split: str, fold: int):
+def frame_list_creator(df: pd.DataFrame, split: str, fold: int, fps=0.2):
     """
     This function creates the frame_list.csv file extracting all info from df -> unified_frame_labels.csv
     """
-    
-    df['Video_id'] = df['Video_name'].str.split('_').str[-1].astype(int)
-    df['frame_path'] = df['Video_name'] + '/' + df['frame_id'].astype(str).str.zfill(5) + '.jpg'
+    if fps == 0.2:
+        df['Video_id'] = df['Video_name'].str.split('_').str[-1].astype(int)
+        df['frame_path'] = df['Video_name'] + '/' + df['frame_id'].astype(str).str.zfill(5) + '.jpg'
 
-    #Remove unncesary columns
-    df = df[['Video_name', 'Video_id', 'frame_id', 'frame_path']]
-    df.to_csv(f'/home/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/data/CVSSages/frame_lists/only_challenge_annot_data/fold_{fold}_{split}.csv', 
-                sep=' ',          # separador espacio
-                index=False,      # sin índice
-                header=False)
+        #Remove unncesary columns
+        df = df[['Video_name', 'Video_id', 'frame_id', 'frame_path']]
+        df.to_csv(f'/home/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/data/Cvssages/only_challenge_annot_data/frame_lists/fold_{fold}_{split}_fps_02.csv', 
+                    sep=' ',          # separador espacio
+                    index=False,      # sin índice
+                    header=False)
+    elif fps==1:
+        # In this case create the frame_list.csv file with the frame info at 1fps
+        #TODO: add posibility to change this path depending if its original or cut_margin
+        frames_path = '/media/SSD3/leoshared/Dataset/frames'
+        fps1_dict = []
+
+        #Use glob to load all possible frames at 1fps
+        for video_idx in df['Video_name'].unique():
+            video_frames_path = sorted(glob.glob(os.path.join(frames_path, video_idx, '*.jpg')))
+            video_frames_path = video_frames_path[0:2701:30] #-> take only possitions that are multiples of 30
+
+            for pth in video_frames_path:
+                video_string = pth.split('/')[-2]
+                frame_string = pth.split('/')[-1][:-4]
+                
+                fps1_dict.append({'Video_name': video_string,
+                                'Video_id': int(video_string.split('_')[-1]),
+                                'frame_id': int(frame_string),
+                                'frame_path': os.path.join(video_string, f'{frame_string}.jpg')})
+            
+        fps1_df = pd.DataFrame(fps1_dict)
+        fps1_df.to_csv(f'/home/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/data/Cvssages/only_challenge_annot_data/frame_lists/fold_{fold}_{split}_fps_{fps}.csv', 
+                    sep=' ',          # separador espacio
+                    index=False,      # sin índice
+                    header=False )
+    
+    elif fps==30:
+        # In this case create the frame_list.csv file with the frame info at 1fps
+        #TODO: add posibility to change this path depending if its original or cut_margin
+        frames_path = '/media/SSD3/leoshared/Dataset/frames'
+        fps1_dict = []
+
+        #Use glob to load all possible frames at 1fps
+        for video_idx in df['Video_name'].unique():
+            video_frames_path = sorted(glob.glob(os.path.join(frames_path, video_idx, '*.jpg')))
+
+            for pth in video_frames_path:
+                video_string = pth.split('/')[-2]
+                frame_string = pth.split('/')[-1][:-4]
+                
+                fps1_dict.append({'Video_name': video_string,
+                                'Video_id': int(video_string.split('_')[-1]),
+                                'frame_id': int(frame_string),
+                                'frame_path': os.path.join(video_string, f'{frame_string}.jpg')})
+            
+        fps1_df = pd.DataFrame(fps1_dict)
+        fps1_df.to_csv(f'/home/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/data/Cvssages/only_challenge_annot_data/frame_lists/fold_{fold}_{split}_fps_{fps}.csv', 
+                    sep=' ',          # separador espacio
+                    index=False,      # sin índice
+                    header=False )
 
 
 def annotations_json_creator(df: pd.DataFrame, split: str, fold: int):
@@ -79,12 +132,26 @@ def annotations_json_creator(df: pd.DataFrame, split: str, fold: int):
     
     images_info = []
     annots_info = []
+    base_frames_path = '/home/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/data/Cvssages/only_challenge_annot_data/frames'
 
-    for index, row in df.iterrows():
+    for index, row in tqdm(df.iterrows()):
+
+        #Open each image and define width and height
+        image_path = row['frame_path']
+    
+        if os.path.exists(os.path.join(base_frames_path, image_path)):
+            with Image.open(os.path.join(base_frames_path, image_path)) as img:
+                width, height = img.size
+        else:
+            print(f"Ruta no encontrada: {image_path}")
+            width, height = None, None
+
         image_info = {'id': index,
                     'file_name': row['frame_path'],
                     'video_name': row['Video_name'],
-                    'frame_num': index}
+                    'frame_num': index,
+                    'width': width,
+                    'height': height}
         
         annot_info = {'id': index,
                       'image_id': index,
@@ -97,7 +164,7 @@ def annotations_json_creator(df: pd.DataFrame, split: str, fold: int):
     json_data = {'images':images_info, 'annotations':annots_info}
 
     save_json(json_data,
-              f'/home/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/data/CVSSages/annotations/only_challenge_annot_data/{split}_long-term_fold_{fold}.json')
+              f'/home/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/data/Cvssages/only_challenge_annot_data/annotations/{split}_long-term_fold_{fold}.json')
 
 
 
@@ -118,17 +185,19 @@ if __name__ == '__main__':
     df_train_fold1 = df_frames_annots[df_frames_annots['Video_name'].isin(train_videos)]
     df_test_fold1 = df_frames_annots[df_frames_annots['Video_name'].isin(test_videos)]
 
+    print('\n Processing files for fold 1....')
     for split, df in zip(['train', 'test'], [df_train_fold1, df_test_fold1]):
-        frame_list_creator(df, split, 1)
+        frame_list_creator(df, split, 1, fps=30)
         annotations_json_creator(df, split, 1)
 
+    print('\n Processing files for fold 2....')
     # Fold2 configurations and files
     #TODO: ojo con esto, aca solo cambio las listas pero es muy susceptible a errores humanos
     df_train_fold2 = df_frames_annots[df_frames_annots['Video_name'].isin(test_videos)] 
     df_test_fold2 = df_frames_annots[df_frames_annots['Video_name'].isin(train_videos)]
 
     for split, df in zip(['train', 'test'], [df_train_fold2, df_test_fold2]):
-        frame_list_creator(df, split, 2)
+        frame_list_creator(df, split, 2, fps=30)
         annotations_json_creator(df, split, 2)
 
 

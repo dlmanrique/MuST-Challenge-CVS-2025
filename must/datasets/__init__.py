@@ -5,4 +5,5 @@ from .grasp import Grasp, Graspms  # noqa
 from .cholec80 import Cholec80, Cholec80ms, Cholec80chunks
 from .misaw import Misaw, Misawms, Misawchunks
 from .heichole import Heichole, Heicholems, Heicholechunks
+from .Cvssages import Cvssages
 from .build import DATASET_REGISTRY, build_dataset  # noqa

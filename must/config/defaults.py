@@ -700,7 +700,7 @@ _C.ENDOVIS_DATASET.IMG_PROC_BACKEND = "cv2"
 _C.ENDOVIS_DATASET.TEST_COCO_ANNS = ""
 
 # Supported Tasks
-_C.ENDOVIS_DATASET.TASKS = ["phases", "steps", "instruments", "actions"]
+_C.ENDOVIS_DATASET.TASKS = ["phases", "steps", "instruments", "actions", 'cvs']
 
 # Region Tasks
 _C.ENDOVIS_DATASET.REGION_TASKS = ["instruments", "actions"]
@@ -720,7 +720,7 @@ _C.TASKS = CfgNode()
 _C.TASKS.ENABLE = True
 
 # Task names for each extra head
-_C.TASKS.TASKS = ["actions", "phases", "steps", "instruments"]
+_C.TASKS.TASKS = ["actions", "phases", "steps", "instruments", 'cvs']
 
 # Task metrics
 _C.TASKS.METRICS = ["mAP@50_det", "mAP@50_seg", "mAP", "mIoU"]

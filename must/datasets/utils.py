@@ -65,6 +65,7 @@ def get_sequence(center_idx, half_len, sample_rate, num_frames, length, online=F
     Returns:
         seq (list): list of indexes of sampled frames in this clip.
     """
+
     if not online:
         if length % 2 == 0:
             seq = list(range(center_idx - half_len, center_idx + half_len, sample_rate))

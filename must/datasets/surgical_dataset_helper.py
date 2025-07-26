@@ -159,6 +159,7 @@ def parse_bboxes_file(ann_filenames, ann_is_gt_box, detect_thresh, cfg, split):
         detect_thresh (float): threshold for accepting predicted boxes, range [0, 1].
         boxes_sample_rate (int): sample rate for test bounding boxes. Get 1 every `boxes_sample_rate`.
     """
+
     count = 0
     filter = split=='train' and cfg.TRAIN.FILTER_EMPTY
     annotated_frames_dict = {}
@@ -350,7 +351,7 @@ def get_keyframe_data_chunks(boxes_and_labels,keyframe_mapping, cfg, split):
 
     return keyframe_indices, keyframe_boxes_and_labels
 
-def get_keyframe_data(boxes_and_labels,keyframe_mapping):
+def get_keyframe_data(boxes_and_labels, keyframe_mapping):
     """
     Getting keyframe indices, boxes and labels in the dataset.
 
@@ -370,7 +371,8 @@ def get_keyframe_data(boxes_and_labels,keyframe_mapping):
     for video_idx in range(len(boxes_and_labels)):
         keyframe_boxes_and_labels.append([])
         for sec_idx,sec in enumerate(boxes_and_labels[video_idx]):
-            keyframe_indices.append((video_idx, sec_idx, sec, keyframe_mapping(video_idx, sec_idx, sec)))
+            # Adjust for CVS training
+            keyframe_indices.append((video_idx, sec_idx, sec_idx*150 + 1, keyframe_mapping(video_idx, sec_idx, sec_idx*150)))
             keyframe_boxes_and_labels[video_idx].append(
                 boxes_and_labels[video_idx][sec]
             )

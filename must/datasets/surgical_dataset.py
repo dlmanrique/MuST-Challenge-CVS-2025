@@ -59,6 +59,7 @@ class SurgicalDataset(torch.utils.data.Dataset):
         Args:
             cfg (CfgNode): config
         """
+        
         # Loading frame paths.
         (
             self._image_paths,
@@ -133,6 +134,7 @@ class SurgicalDataset(torch.utils.data.Dataset):
             imgs (tensor): list of preprocessed images.
         """
 
+        #FIXME: ojito con esto, aca se asume que todos los frames del video tienen mismo shape
         height, width, _ = imgs[0].shape
 
         # The image now is in HWC, BGR format.
@@ -141,12 +143,16 @@ class SurgicalDataset(torch.utils.data.Dataset):
                 imgs = [cv2_transform.scale_resize(250, img) for img in imgs]
 
             else:
+                # Del shape original de los frames hacemos un "resize" que mantiene la proporcion de height/width
+                # El tamaño se determina por un valor entre [self._jitter_min_scale, self._jitter_max_scale]
                 imgs = cv2_transform.random_short_side_scale_jitter_list(
                     imgs,
                     min_size=self._jitter_min_scale,
                     max_size=self._jitter_max_scale,
                 )
 
+            #TODO: preguntar que pasa en este caso con los frames que tienen consolas y otros artefactos
+            # Se toma un crop 224 x 224 de forma random
             imgs = cv2_transform.random_crop_list(
                 imgs, self._crop_size, order="HWC"
             )
@@ -156,6 +162,7 @@ class SurgicalDataset(torch.utils.data.Dataset):
                 imgs = cv2_transform.horizontal_flip_list(
                     0.5, imgs, order="HWC"
                 )
+
         elif self._split == "val" or self.cfg.DATA.JUST_CENTER:
             # Short side to test_scale. Non-local and STRG uses 256.
             if self.cfg.DATA.FIXED_RESIZE:

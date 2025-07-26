@@ -1,35 +1,31 @@
 #!/usr/bin/env python3
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 
-import itertools
 import os
 import logging
-import numpy as np
 
 from copy import deepcopy
 from .surgical_dataset import SurgicalDataset, SurgicalDatasetChunks
 from . import utils as utils
 from .build import DATASET_REGISTRY
 
-import torch
-import json
-
-from scipy.optimize import linear_sum_assignment
-
 from tqdm import tqdm
-import glob
+import matplotlib.pyplot as plt
+import torchvision.transforms.functional as TF
+import torch
+
 
 logger = logging.getLogger(__name__)
 
 
 @DATASET_REGISTRY.register()
-class CSVSages(SurgicalDataset):
+class Cvssages(SurgicalDataset):
     """
     PSI-AVA dataloader.
     """
 
     def __init__(self, cfg, split):
-        self.dataset_name = "cvs_sages"
+        self.dataset_name = "Cvssages"
         self.zero_fill = 5
         self.image_type = "jpg"
         self.cfg = cfg
@@ -55,15 +51,16 @@ class CSVSages(SurgicalDataset):
         """
 
         # Get the path of the middle frame 
-        video_idx, sec_idx, sec, center_idx = self._keyframe_indices[idx]
+        video_idx, sec_idx, sec, center_idx = self._keyframe_indices[idx] # (0,3,451,450)
         video_name = self._video_idx_to_name[video_idx]
         complete_name = '{}/{}.{}'.format(video_name, str(sec).zfill(self.zero_fill), self.image_type)
 
         #TODO: REMOVE when all done
         folder_to_images = "/".join(self._image_paths[video_idx][0].split('/')[:-2])
-        path_complete_name = os.path.join(folder_to_images,complete_name)
-
+        path_complete_name = os.path.join(folder_to_images, complete_name)
+        
         found_idx = self._image_paths[video_idx].index(path_complete_name)
+        
 
         assert path_complete_name == self._image_paths[video_idx][center_idx], f'Different paths {path_complete_name} & {self._image_paths[video_idx][center_idx]} & {sec_idx} & {sec}'
         assert found_idx == center_idx, f'Different indexes {found_idx} & {center_idx}'
@@ -110,5 +107,19 @@ class CSVSages(SurgicalDataset):
             frame_identifier = [video_num,sec]
         else:
             frame_identifier = complete_name
-        
+            
+
+        """images_to_show = imgs[0] if isinstance(imgs, list) else imgs  # En caso de slowfast o pathway input
+        print(f"Mostrando {len(images_to_show)} frames del clip: {frame_identifier}")
+        images_to_show = images_to_show.permute(1, 0, 2, 3)
+
+        for i, img in enumerate(images_to_show):
+            # Desnormalizar si es necesario (ImageNet mean/std)
+            mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
+            std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
+            img_vis = img * std + mean
+
+            img_vis = TF.to_pil_image(img_vis.clamp(0, 1))  # Convierte tensor a imagen PIL
+            img_vis.save(f"frame_{i}.png")"""
+
         return imgs, all_labels, extra_data, frame_identifier
