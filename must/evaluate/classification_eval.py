@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 def eval_classification(task, coco_anns, preds, img_ann_dict, mask_path):
     
+    breakpoint()
     classes = coco_anns[f'{task}_categories']
     num_classes = len(classes)
     bin_labels = np.zeros((len(coco_anns["annotations"]), num_classes))

@@ -166,7 +166,7 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg):
         cfg (CfgNode): configs. Details can be found in
             slowfast/config/defaults.py
     """
-
+    breakpoint()
     # Evaluation mode enabled. The running stats would not be updated.
     model.eval()
     val_meter.iter_tic()

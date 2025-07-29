@@ -85,7 +85,7 @@ class TransformerBasicHead(nn.Module):
             x = self.dropout(x)
         x = self.class_projection(x)
 
-        if self.act_func == "sigmoid" or not self.training:
+        if self.act_func == "sigmoid" or not self.training: 
             x = self.act(x)
         return x
 

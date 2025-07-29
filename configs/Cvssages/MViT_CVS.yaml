@@ -77,7 +77,7 @@ MODEL:
 TASKS:
   TASKS:  ["cvs"]
   NUM_CLASSES: [3]
-  LOSS_FUNC: ["cross_entropy"]
+  LOSS_FUNC: ["bce_logit"]
   HEAD_ACT:  ["softmax"]
   LOSS_WEIGHTS:  [1.0] 
   METRICS: ["mAP"]  
