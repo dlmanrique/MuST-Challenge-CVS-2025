@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import precision_recall_curve, average_precision_score, precision_score, recall_score, f1_score, balanced_accuracy_score, roc_auc_score
 from tqdm import tqdm
@@ -46,6 +47,26 @@ def eval_classification(task, coco_anns, preds, img_ann_dict, mask_path):
     cat_names = [f"{cat['name']}-AP" for cat in classes]
     
     return mAP, dict(zip(cat_names,list(ap.values())))
+
+def get_map(y_true, y_pred_probs_list):
+
+    average_precisions = []
+    true_labels = np.concatenate([np.array(x) for x in y_true])
+    predicted_probabilities = np.concatenate([np.array(x) for x in y_pred_probs_list])
+    for class_idx in range(true_labels.shape[1]):
+        class_true = true_labels[:, class_idx]
+        class_scores = predicted_probabilities[:, class_idx]
+        average_precision = average_precision_score(class_true, class_scores)
+        average_precisions.append(average_precision)
+
+    # Calculate the mean of the average precisions across all classes to obtain mAP
+    mAP = np.mean(average_precisions)
+    C1_ap = average_precisions[0]
+    C2_ap = average_precisions[1]
+    C3_ap = average_precisions[2]
+    
+    return C1_ap, C2_ap, C3_ap, mAP
+
 
 def eval_precision(task, coco_anns, preds, img_ann_dict, mask_path):
     classes = coco_anns[f'{task}_categories']

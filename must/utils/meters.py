@@ -440,7 +440,7 @@ class SurgeryMeter(object):
         """
         Calculate and log the final PSI-AVA metrics.
         """
-        breakpoint()
+
         out_name = {}
         for task,metric in zip(self.tasks, self.metrics):
             out_name[task] = self.save_json(task, self.all_preds, self.all_names, epoch)

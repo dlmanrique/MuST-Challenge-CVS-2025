@@ -55,6 +55,7 @@ class Cvssages(SurgicalDataset):
         video_name = self._video_idx_to_name[video_idx]
         complete_name = '{}/{}.{}'.format(video_name, str(sec).zfill(self.zero_fill), self.image_type)
 
+
         #TODO: REMOVE when all done
         folder_to_images = "/".join(self._image_paths[video_idx][0].split('/')[:-2])
         path_complete_name = os.path.join(folder_to_images, complete_name)

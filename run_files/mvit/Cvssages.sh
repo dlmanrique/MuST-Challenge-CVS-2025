@@ -4,6 +4,7 @@ SAMPLE_RATE=4
 TASK="CVS"
 ARCH="MViT"
 ONLINE=True
+MINI="true"
 
 TRAIN_FOLD="train"
 TEST_FOLD="test" 
@@ -11,7 +12,21 @@ DATASET="Cvssages"
 DATA_TYPE="only_challenge_annot_data"
 FOLD_NUM=1
 FPS=30
-EXP_PREFIX="arch_$ARCH-frames_$NUM_FRAMES-sr_$SAMPLE_RATE-online_$ONLINE-data_type_$DATA_TYPE-fps_$FPS"
+
+if [ "$MINI" = "true" ]; then
+    COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/mini_$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    TRAIN_GT_BOX_JSON="mini_$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    TEST_GT_BOX_JSON="mini_$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    EXP_PREFIX="arch_$ARCH-frames_$NUM_FRAMES-sr_$SAMPLE_RATE-online_$ONLINE-data_type_$DATA_TYPE-fps_$FPS-debbuging_mode"
+    
+else
+    COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    TRAIN_GT_BOX_JSON="$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    TEST_GT_BOX_JSON="$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    EXP_PREFIX="arch_$ARCH-frames_$NUM_FRAMES-sr_$SAMPLE_RATE-online_$ONLINE-data_type_$DATA_TYPE-fps_$FPS"
+fi
+
+
 
 #-------------------------
 EXPERIMENT_NAME=$EXP_PREFIX"/fold_$FOLD_NUM/"$TRAIN_FOLD
@@ -20,9 +35,11 @@ FRAME_DIR="./data/"$DATASET"/"$DATA_TYPE"/frames"
 OUTPUT_DIR="outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
 FRAME_LIST="./data/"$DATASET"/"$DATA_TYPE"/frame_lists"
 ANNOT_DIR="./data/"$DATASET"/"$DATA_TYPE"/annotations/"
-COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
 CHECKPOINT="./model_weights/pretrained_models/K400_MVIT_B_16x4_CONV.pyth"
 TYPE="pytorch"
+
+
+    
 
 export PYTHONPATH="./must:$PYTHONPATH"
 
@@ -47,8 +64,8 @@ ENDOVIS_DATASET.TRAIN_LISTS "fold_"$FOLD_NUM"_"$TRAIN_FOLD"_fps_"$FPS".csv" \
 ENDOVIS_DATASET.TEST_LISTS "fold_"$FOLD_NUM"_"$TEST_FOLD"_fps_"$FPS".csv"  \
 ENDOVIS_DATASET.ANNOTATION_DIR $ANNOT_DIR \
 ENDOVIS_DATASET.TEST_COCO_ANNS $COCO_ANN_PATH \
-ENDOVIS_DATASET.TRAIN_GT_BOX_JSON "$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM.json" \
-ENDOVIS_DATASET.TEST_GT_BOX_JSON "$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json" \
+ENDOVIS_DATASET.TRAIN_GT_BOX_JSON $TRAIN_GT_BOX_JSON \
+ENDOVIS_DATASET.TEST_GT_BOX_JSON $TEST_GT_BOX_JSON \
 TRAIN.BATCH_SIZE 24 \
 TEST.BATCH_SIZE 24 \
 SOLVER.MAX_EPOCH 20 \

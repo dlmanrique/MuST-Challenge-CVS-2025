@@ -134,7 +134,7 @@ def load_boxes_and_labels(cfg, mode):
     ann_is_gt_box = [True] * len(gt_lists) + [False] * len(pred_lists)
     detect_thresh = cfg.ENDOVIS_DATASET.DETECTION_SCORE_THRESH
 
-    all_boxes, count, count_unqiue = parse_bboxes_file(
+    all_boxes, count, count_unqiue, frames_names = parse_bboxes_file(
         ann_filenames=ann_filenames,
         ann_is_gt_box=ann_is_gt_box,
         detect_thresh=detect_thresh,
@@ -147,7 +147,7 @@ def load_boxes_and_labels(cfg, mode):
     logger.info("Number of annotations: %d" % count)
     logger.info("Number of unique annotations: %d" % count_unqiue)
 
-    return all_boxes
+    return all_boxes, frames_names
 
 def parse_bboxes_file(ann_filenames, ann_is_gt_box, detect_thresh, cfg, split):
     """
@@ -165,6 +165,8 @@ def parse_bboxes_file(ann_filenames, ann_is_gt_box, detect_thresh, cfg, split):
     annotated_frames_dict = {}
     complete_frames = {} # 
     id2frame = {}
+    frames_names = {}
+
     for filename, is_gt_box in zip(ann_filenames, ann_is_gt_box):
         with pathmgr.open(filename, "r") as f:
             data = json.load(f)
@@ -191,9 +193,15 @@ def parse_bboxes_file(ann_filenames, ann_is_gt_box, detect_thresh, cfg, split):
             else:
                 video_name, frame_num, width, height = id2frame[annotation['image_id']]
                 complete_frames[video_name][frame_num] = False
+
+            try:
+                frames_names[video_name].append(annotation['image_name'])
+            except:
+                frames_names[video_name] = [annotation['image_name']]
         
     count_unique = 0
     all_labels = {}
+    
     # Filter keyframes without complete annotations for all tasks
     for video_name in annotated_frames_dict:
         all_labels[video_name]={}
@@ -210,7 +218,7 @@ def parse_bboxes_file(ann_filenames, ann_is_gt_box, detect_thresh, cfg, split):
     annotated_frames_dict = None
     gc.collect()
 
-    return all_labels, count, count_unique
+    return all_labels, count, count_unique, frames_names
 
 def verify_annots(annotation,cfg,filter):
     """
@@ -351,7 +359,7 @@ def get_keyframe_data_chunks(boxes_and_labels,keyframe_mapping, cfg, split):
 
     return keyframe_indices, keyframe_boxes_and_labels
 
-def get_keyframe_data(boxes_and_labels, keyframe_mapping):
+def get_keyframe_data(boxes_and_labels, frames_names, video_ids, keyframe_mapping):
     """
     Getting keyframe indices, boxes and labels in the dataset.
 
@@ -368,11 +376,15 @@ def get_keyframe_data(boxes_and_labels, keyframe_mapping):
     keyframe_indices = []
     keyframe_boxes_and_labels = []
     count = 0
+    
     for video_idx in range(len(boxes_and_labels)):
         keyframe_boxes_and_labels.append([])
         for sec_idx,sec in enumerate(boxes_and_labels[video_idx]):
             # Adjust for CVS training
-            keyframe_indices.append((video_idx, sec_idx, sec_idx*150 + 1, keyframe_mapping(video_idx, sec_idx, sec_idx*150)))
+            frame_name = frames_names[video_ids[video_idx]][sec_idx]
+            frame_id = int(frame_name.split('/')[-1][:-4])
+            
+            keyframe_indices.append((video_idx, sec_idx, frame_id, keyframe_mapping(video_idx, sec_idx, frame_id-1)))
             keyframe_boxes_and_labels[video_idx].append(
                 boxes_and_labels[video_idx][sec]
             )

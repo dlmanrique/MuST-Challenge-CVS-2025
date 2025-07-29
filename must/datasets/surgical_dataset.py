@@ -67,7 +67,7 @@ class SurgicalDataset(torch.utils.data.Dataset):
         ) = data_helper.load_image_lists(cfg, is_train=(self._split == "train"))
 
         # Loading annotations for boxes and labels.
-        boxes_and_labels = data_helper.load_boxes_and_labels(
+        boxes_and_labels, frames_names = data_helper.load_boxes_and_labels(
             cfg, mode=self._split
         )
 
@@ -82,7 +82,7 @@ class SurgicalDataset(torch.utils.data.Dataset):
             (
                 self._keyframe_indices,
                 self._keyframe_boxes_and_labels,
-            ) = data_helper.get_keyframe_data(boxes_and_labels, self.keyframe_mapping)
+            ) = data_helper.get_keyframe_data(boxes_and_labels, frames_names, self._video_idx_to_name, self.keyframe_mapping)
         else:
             (
                 self._keyframe_indices,
