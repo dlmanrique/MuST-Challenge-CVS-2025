@@ -11,7 +11,7 @@ import numpy as np
 import os
 import json
 from collections import defaultdict, deque
-import torch
+import wandb
 from fvcore.common.timer import Timer
 from sklearn.metrics import average_precision_score
 
@@ -45,7 +45,8 @@ IDENT_FUNCT_DICT = {
                     'heichole': lambda x,y: 'video_{:02d}/{:05d}.png'.format(x,y),
                     'heicholems': lambda x,y: 'video_{:02d}/{:05d}.png'.format(x,y),
                     'Heicholechunks': lambda x,y: 'video_{:02d}/{:05d}.png'.format(x,y),
-                    }
+                    
+                    'cvssages': lambda x,y: 'video_{:03d}/{:05d}.jpg'.format(x,y) }
 
 class SurgeryMeterChunks(object):
     """
@@ -444,6 +445,7 @@ class SurgeryMeter(object):
         out_name = {}
         for task,metric in zip(self.tasks, self.metrics):
             out_name[task] = self.save_json(task, self.all_preds, self.all_names, epoch)
+
             self.full_map[task] = grasp_eval.main_per_task(self.groundtruth, out_name[task], task, metric)
             if log:
                 stats = {"mode": self.mode, "task": task, "metric": self.full_map[task]}
@@ -451,6 +453,8 @@ class SurgeryMeter(object):
         if log:
             stats = {"mode": self.mode, "mean metric": np.mean([v[m] for v,m in zip(list(self.full_map.values()), self.metrics)])}
             logging.log_json_stats(stats)
+
+        wandb.log(self.full_map[self.tasks[0]])
         
         return self.full_map, np.mean([v[m] for v,m in zip(list(self.full_map.values()), self.metrics)]), out_name
                     

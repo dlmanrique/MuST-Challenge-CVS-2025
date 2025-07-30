@@ -262,7 +262,7 @@ class CrossAttentionModule(nn.Module):
             embeddings.append(cls_token)
         # Join the logits from each level 
         embeddings = torch.stack(embeddings).cuda()
-        embeddings = embeddings.permute(1, 0, 2)
+        embeddings = embeddings.permute(1, 0, 2).contiguous()
         embeddings = embeddings.reshape(embeddings.shape[0], -1)
         # Fuse the logits from each level
         fused_embeddings = self.mlp_logits_embedding(embeddings)

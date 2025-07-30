@@ -711,6 +711,8 @@ _C.ENDOVIS_DATASET.INCLUDE_GT = True
 # Use Predicted Boxes
 _C.ENDOVIS_DATASET.USE_PREDS = True
 
+_C.ENDOVIS_DATASET.FOLD = 1
+
 # -----------------------------------------------------------------------------
 # Classification heads options
 # -----------------------------------------------------------------------------

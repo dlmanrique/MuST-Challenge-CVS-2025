@@ -9,6 +9,9 @@ import shutil
 import os
 import pprint
 import torch
+import wandb
+from datetime import datetime
+import torch.backends.cudnn as cudnn
 
 import must.models.losses as losses
 import must.models.optimizer as optim
@@ -20,11 +23,18 @@ import must.utils.misc as misc
 from must.datasets import loader
 from must.models import build_model
 from must.utils.meters import EpochTimer, SurgeryMeter, SurgeryMeterChunks
-import torch.backends.cudnn as cudnn
-import torch.backends.cudnn
-import torch.nn as nn
+
 
 logger = logging.get_logger(__name__)
+
+run_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+wandb.init(
+    project='CVS_MuST',
+    entity='endovis_bcv',
+    name=run_name
+)
+
 
 def train_epoch(
     train_loader,
@@ -117,6 +127,7 @@ def train_epoch(
         else:
             final_loss = loss[0]
             
+        wandb.log({'Train Loss': final_loss.item()})
         # check Nan Loss.
         misc.check_nan_losses(final_loss)
 
@@ -166,7 +177,7 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg):
         cfg (CfgNode): configs. Details can be found in
             slowfast/config/defaults.py
     """
-    breakpoint()
+
     # Evaluation mode enabled. The running stats would not be updated.
     model.eval()
     val_meter.iter_tic()
@@ -206,7 +217,7 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg):
                 preds = model(inputs, sequence_mask)
             else:
                 preds = model(inputs)
-        
+
         if cfg.NUM_GPUS:
             preds = {task: preds[task].cpu() for task in complete_tasks}
 
@@ -257,6 +268,7 @@ def train(cfg):
     cudnn.benchmark = False
     cudnn.deterministic = True
 
+    wandb.config.update(cfg)
     # Setup logging format.
     logging.setup_logging(cfg.OUTPUT_DIR)
 
@@ -366,22 +378,7 @@ def train(cfg):
 
         _ = misc.aggregate_sub_bn_stats(model)
 
-        # Save a checkpoint.
-        if is_checkp_epoch:
-            cu.save_checkpoint(
-                cfg.OUTPUT_DIR,
-                model,
-                optimizer,
-                cur_epoch,
-                cfg,
-                scaler if cfg.TRAIN.MIXED_PRECISION else None,
-            )
-        
-        if not cfg.MODEL.KEEP_ALL_CHECKPOINTS:
-            del_fil = os.path.join(cfg.OUTPUT_DIR,'checkpoints', 'checkpoint_epoch_{0:05d}.pyth'.format(cur_epoch-1))
-            if os.path.exists(del_fil):
-                os.remove(del_fil)
-            
+        # Save a checkpoint when the mAP is better than previous ones    
         # Evaluate the model on validation set.
         if is_eval_epoch:
             map_task, mean_map, out_files = eval_epoch(val_loader, model, val_meter, cur_epoch, cfg)
@@ -399,30 +396,17 @@ def train(cfg):
                         cfg.OUTPUT_DIR,
                         model,
                         optimizer,
-                        'mean',
+                        f'epoch_{cur_epoch}',
                         cfg,
                         scaler if cfg.TRAIN.MIXED_PRECISION else None,
                         )
+                    
                     for task in complete_tasks:
                         file = out_files[task].split('/')[-1]
                         copy_path = os.path.join(best_preds_path, file.replace('epoch', 'best_all') )
                         shutil.copyfile(out_files[task], copy_path)
                 
-                for task in complete_tasks:
-                    if list(map_task[task].values())[0] > best_task_map[task]:
-                        best_task_map[task] = list(map_task[task].values())[0]
-                        logger.info("Best {} map at epoch {}".format(task, cur_epoch))
-                        file = out_files[task].split('/')[-1]
-                        copy_path = os.path.join(best_preds_path, file.replace('epoch', 'best') )
-                        shutil.copyfile(out_files[task], copy_path)
-                        cu.save_best_checkpoint(
-                            cfg.OUTPUT_DIR,
-                            model,
-                            optimizer,
-                            task,
-                            cfg,
-                            scaler if cfg.TRAIN.MIXED_PRECISION else None,
-                        )
+
     cu.save_checkpoint(
             cfg.OUTPUT_DIR,
             model,

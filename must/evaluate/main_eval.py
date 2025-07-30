@@ -66,7 +66,6 @@ def main_per_task(coco_ann_path, pred_path, task, metric, masks_path=None):
     coco_anns = load_json(coco_ann_path)
     preds = load_json(pred_path) if type(pred_path)==str else pred_path
 
-
     task_eval, aux_metrics = eval_task(task, metric, coco_anns, preds, masks_path)
     aux_metrics = dict(zip(aux_metrics.keys(),map(lambda x: round(x,3), aux_metrics.values())))
     print('{} task {}: {} {}'.format(task, metric, round(task_eval,3), aux_metrics))

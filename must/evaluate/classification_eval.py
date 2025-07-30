@@ -4,7 +4,7 @@ from sklearn.preprocessing import label_binarize
 from sklearn.metrics import precision_recall_curve, average_precision_score, precision_score, recall_score, f1_score, balanced_accuracy_score, roc_auc_score
 from tqdm import tqdm
 
-def eval_classification(task, coco_anns, preds, img_ann_dict, mask_path):
+"""def eval_classification(task, coco_anns, preds, img_ann_dict, mask_path):
     
     breakpoint()
     classes = coco_anns[f'{task}_categories']
@@ -46,13 +46,25 @@ def eval_classification(task, coco_anns, preds, img_ann_dict, mask_path):
     
     cat_names = [f"{cat['name']}-AP" for cat in classes]
     
-    return mAP, dict(zip(cat_names,list(ap.values())))
+    return mAP, dict(zip(cat_names,list(ap.values())))"""
 
-def get_map(y_true, y_pred_probs_list):
+def eval_classification(task, coco_anns, preds, img_ann_dict, mask_path):
+
+    annots = coco_anns['annotations']
+    true_labels = []
+    predicted_probabilities = []
+    for annot in annots:
+        frame_name = annot['image_name']
+        annot_value = np.array(annot['cvs'])
+        pred_probs_value = np.array(preds[frame_name]['cvs_score_dist'])
+
+        true_labels.append(annot_value)
+        predicted_probabilities.append(pred_probs_value)
+
+    true_labels = np.array(true_labels)
+    predicted_probabilities = np.array(predicted_probabilities)
 
     average_precisions = []
-    true_labels = np.concatenate([np.array(x) for x in y_true])
-    predicted_probabilities = np.concatenate([np.array(x) for x in y_pred_probs_list])
     for class_idx in range(true_labels.shape[1]):
         class_true = true_labels[:, class_idx]
         class_scores = predicted_probabilities[:, class_idx]
@@ -65,7 +77,9 @@ def get_map(y_true, y_pred_probs_list):
     C2_ap = average_precisions[1]
     C3_ap = average_precisions[2]
     
-    return C1_ap, C2_ap, C3_ap, mAP
+    cat_names = ['C1', 'C2', 'C3']
+    ap = [C1_ap, C2_ap, C3_ap]
+    return mAP, dict(zip(cat_names, ap))
 
 
 def eval_precision(task, coco_anns, preds, img_ann_dict, mask_path):
