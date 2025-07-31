@@ -713,6 +713,8 @@ _C.ENDOVIS_DATASET.USE_PREDS = True
 
 _C.ENDOVIS_DATASET.FOLD = 1
 
+_C.ENDOVIS_DATASET.DATA_TYPE = ''
+
 # -----------------------------------------------------------------------------
 # Classification heads options
 # -----------------------------------------------------------------------------
