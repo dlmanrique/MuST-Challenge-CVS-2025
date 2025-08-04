@@ -265,6 +265,7 @@ def train(cfg):
     random.seed(cfg.RNG_SEED)
     np.random.seed(cfg.RNG_SEED)
     torch.manual_seed(cfg.RNG_SEED)
+    torch.cuda.manual_seed_all(cfg.RNG_SEED)
     cudnn.benchmark = False
     cudnn.deterministic = True
 
