@@ -46,7 +46,8 @@ IDENT_FUNCT_DICT = {
                     'heicholems': lambda x,y: 'video_{:02d}/{:05d}.png'.format(x,y),
                     'Heicholechunks': lambda x,y: 'video_{:02d}/{:05d}.png'.format(x,y),
                     
-                    'cvssages': lambda x,y: 'video_{:03d}/{:05d}.jpg'.format(x,y) }
+                    'cvssages': lambda x,y: 'video_{:03d}/{:05d}.jpg'.format(x,y),
+                    'endoscapes': lambda x,y: 'video_{:03d}/{:05d}.jpg'.format(x,y)}
 
 class SurgeryMeterChunks(object):
     """
