@@ -383,6 +383,9 @@ def train(cfg):
         # Evaluate the model on validation set.
         if is_eval_epoch:
             map_task, mean_map, out_files = eval_epoch(val_loader, model, val_meter, cur_epoch, cfg)
+            map_task, mean_map, out_files = eval_epoch(train_loader, model, val_meter, cur_epoch, cfg)
+
+
             if (cfg.NUM_GPUS > 1 and du.is_master_proc()) or cfg.NUM_GPUS == 1:
                 main_path = os.path.split(list(out_files.values())[0])[0]
                 fold = main_path.split('/')[-1]
