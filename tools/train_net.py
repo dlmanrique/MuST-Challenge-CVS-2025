@@ -162,11 +162,11 @@ def train_epoch(
         train_meter.iter_tic()
     
     # Log epoch stats.
-    train_meter.log_epoch_stats(cur_epoch)
+    train_meter.log_epoch_stats(cur_epoch, 'train')
     train_meter.reset()
 
 @torch.no_grad()
-def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg):
+def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, split):
     """
     Evaluate the model on the val set.
     Args:
@@ -177,12 +177,13 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg):
         cfg (CfgNode): configs. Details can be found in
             slowfast/config/defaults.py
     """
-
+    
     # Evaluation mode enabled. The running stats would not be updated.
     model.eval()
     val_meter.iter_tic()
     complete_tasks = cfg.TASKS.TASKS
     region_tasks = {task for task in cfg.TASKS.TASKS if task in cfg.ENDOVIS_DATASET.REGION_TASKS}
+    count = 0
 
     for cur_iter, (inputs, labels, data, image_names) in enumerate(val_loader):
         if cfg.NUM_GPUS:
@@ -233,20 +234,21 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg):
         for task in complete_tasks:
             if task not in region_tasks:
                 preds[task] = preds[task].tolist()
-        
+
+        count += len(image_names)
         # Update and log stats.
         val_meter.update_stats(preds, image_names)
         val_meter.log_iter_stats(cur_epoch, cur_iter)
         val_meter.iter_tic()
-
+    
     if cfg.NUM_GPUS > 1:
         if du.is_master_proc():
-            task_map, mean_map, out_files = val_meter.log_epoch_stats(cur_epoch)
+            task_map, mean_map, out_files = val_meter.log_epoch_stats(cur_epoch, split)
         else:
             task_map, mean_map, out_files =  [0, 0, 0]
         torch.distributed.barrier()
     else:
-        task_map, mean_map, out_files = val_meter.log_epoch_stats(cur_epoch)
+        task_map, mean_map, out_files = val_meter.log_epoch_stats(cur_epoch, split)
     val_meter.reset()
 
     return task_map, mean_map, out_files
@@ -307,11 +309,13 @@ def train(cfg):
     # Create the video train and val loaders.
     train_loader = loader.construct_loader(cfg, "train")
     val_loader = loader.construct_loader(cfg, "val")
+    train_eval_loader = loader.construct_loader(cfg, "train-eval")
 
     if cfg.TEMPORAL_MODULE.CHUNKS == False:
         # Create meters.
         train_meter = SurgeryMeter(len(train_loader), cfg, mode="train")
         val_meter = SurgeryMeter(len(val_loader), cfg, mode="val")
+        train_meter_eval = SurgeryMeter(len(train_eval_loader), cfg, mode="val")
     else:
         # Create meters.
         train_meter = SurgeryMeterChunks(len(train_loader), cfg, mode="train")
@@ -320,7 +324,7 @@ def train(cfg):
     # Perform final test
     if cfg.TEST.ENABLE:
         logger.info("Evaluating epoch: {}".format(start_epoch + 1))
-        map_task, mean_map, out_files = eval_epoch(val_loader, model, val_meter, start_epoch, cfg)
+        map_task, mean_map, out_files = eval_epoch(val_loader, model, val_meter, start_epoch, cfg, 'val/test')
         if not cfg.TRAIN.ENABLE:
             return
     elif cfg.TRAIN.ENABLE:
@@ -382,9 +386,11 @@ def train(cfg):
         # Save a checkpoint when the mAP is better than previous ones    
         # Evaluate the model on validation set.
         if is_eval_epoch:
-            map_task, mean_map, out_files = eval_epoch(val_loader, model, val_meter, cur_epoch, cfg)
-            map_task, mean_map, out_files = eval_epoch(train_loader, model, val_meter, cur_epoch, cfg)
+            map_task, mean_map, out_files = eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, 'test')
 
+            if cur_epoch % 3 == 0:
+                map_task_train, mean_map_train, out_files_train = eval_epoch(train_eval_loader, model, train_meter_eval, cur_epoch, cfg, 'train')
+            
 
             if (cfg.NUM_GPUS > 1 and du.is_master_proc()) or cfg.NUM_GPUS == 1:
                 main_path = os.path.split(list(out_files.values())[0])[0]

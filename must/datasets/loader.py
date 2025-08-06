@@ -76,7 +76,7 @@ def construct_loader(cfg, split, is_precise_bn=False):
         split (str): the split of the data loader. Options include `train`,
             `val`, and `test`.
     """
-    assert split in ["train", "val", "test"]
+    assert split in ["train", "val", "test", 'train-eval']
     
     if split in ["train"]:
         dataset_name = cfg.TRAIN.DATASET
@@ -93,7 +93,15 @@ def construct_loader(cfg, split, is_precise_bn=False):
         batch_size = int(cfg.TEST.BATCH_SIZE / max(1, cfg.NUM_GPUS))
         shuffle = False
         drop_last = False
+    elif split in ['train-eval']:
+        dataset_name = cfg.TRAIN.DATASET
+        batch_size = int(cfg.TRAIN.BATCH_SIZE / max(1, cfg.NUM_GPUS))
+        shuffle = False
+        drop_last = False
 
+    if split == 'train-eval':
+        split = 'train'
+    
     # Construct the dataset
     dataset = build_dataset(dataset_name, cfg, split)
     dataset[3]

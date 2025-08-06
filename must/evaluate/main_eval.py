@@ -57,11 +57,11 @@ def eval_task(task, metric, coco_anns, preds, masks_path):
     except KeyError:
         raise NotImplementedError(f'Metric {metric} is not supported')
     
-
     main_metric, aux_metrics = metric_funct(task, coco_anns, preds, img_ann_dict, masks_path)
     return main_metric, aux_metrics
 
 def main_per_task(coco_ann_path, pred_path, task, metric, masks_path=None):
+
     # Load coco anns and preds
     coco_anns = load_json(coco_ann_path)
     preds = load_json(pred_path) if type(pred_path)==str else pred_path

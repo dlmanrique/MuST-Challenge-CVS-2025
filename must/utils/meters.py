@@ -438,7 +438,7 @@ class SurgeryMeter(object):
         if lr is not None:
             self.lr = lr
 
-    def finalize_metrics(self, epoch, log=True):
+    def finalize_metrics(self, epoch, split, log=True):
         """
         Calculate and log the final PSI-AVA metrics.
         """
@@ -447,7 +447,12 @@ class SurgeryMeter(object):
         for task,metric in zip(self.tasks, self.metrics):
             out_name[task] = self.save_json(task, self.all_preds, self.all_names, epoch)
 
-            self.full_map[task] = grasp_eval.main_per_task(self.groundtruth, out_name[task], task, metric)
+            if split not in self.groundtruth:
+                gt_path = self.groundtruth.replace('test', 'train')
+            else:
+                gt_path = self.groundtruth
+
+            self.full_map[task] = grasp_eval.main_per_task(gt_path, out_name[task], task, metric)
             if log:
                 stats = {"mode": self.mode, "task": task, "metric": self.full_map[task]}
                 logging.log_json_stats(stats)
@@ -455,22 +460,25 @@ class SurgeryMeter(object):
             stats = {"mode": self.mode, "mean metric": np.mean([v[m] for v,m in zip(list(self.full_map.values()), self.metrics)])}
             logging.log_json_stats(stats)
 
-        wandb.log(self.full_map[self.tasks[0]])
+        old_dict = self.full_map[self.tasks[0]]
+        new_dict = {f'{split}_{k}': v for k, v in old_dict.items()}
+        wandb.log(new_dict)
         
         return self.full_map, np.mean([v[m] for v,m in zip(list(self.full_map.values()), self.metrics)]), out_name
                     
-    def log_epoch_stats(self, cur_epoch):
+    def log_epoch_stats(self, cur_epoch, split):
         """
         Log the stats of the current epoch.
         Args:
             cur_epoch (int): the number of current epoch.
         """
         if self.mode in ["val", "test"]:
-            metrics_val, mean_map, out_files = self.finalize_metrics(cur_epoch +1)
+            metrics_val, mean_map, out_files = self.finalize_metrics(cur_epoch +1, split)
             stats = {
                 "_type": "{}_epoch".format(self.mode),
                 "cur_epoch": "{}".format(cur_epoch + 1),
                 "mode": self.mode,
+                'split': split,
                 "gpu_mem": "{:.2f}G".format(misc.gpu_mem_usage()),
                 "RAM": "{:.2f}/{:.2f}G".format(*misc.cpu_mem_usage()),
             }

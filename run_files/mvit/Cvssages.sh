@@ -32,7 +32,8 @@ fi
 EXPERIMENT_NAME=$EXP_PREFIX"/fold_$FOLD_NUM/"$TRAIN_FOLD
 CONFIG_PATH="configs/"$DATASET"/"$ARCH"_"$TASK".yaml"
 FRAME_DIR="./data/"$DATASET"/"$DATA_TYPE"/frames"
-OUTPUT_DIR="/media/lambda001/SSD3/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
+#OUTPUT_DIR="/media/lambda001/SSD3/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
+OUTPUT_DIR="./outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
 FRAME_LIST="./data/"$DATASET"/"$DATA_TYPE"/frame_lists"
 ANNOT_DIR="./data/"$DATASET"/"$DATA_TYPE"/annotations/"
 CHECKPOINT="./model_weights/pretrained_models/K400_MVIT_B_16x4_CONV.pyth"
@@ -43,9 +44,9 @@ export PYTHONPATH="./must:$PYTHONPATH"
 
 mkdir -p $OUTPUT_DIR
 
-CUDA_VISIBLE_DEVICES=6,7 python -B tools/run_net.py \
+CUDA_VISIBLE_DEVICES=3 python -B tools/run_net.py \
 --cfg $CONFIG_PATH \
-NUM_GPUS 2 \
+NUM_GPUS 1 \
 TRAIN.DATASET $DATASET \
 TEST.DATASET $DATASET \
 TRAIN.CHECKPOINT_FILE_PATH $CHECKPOINT \
