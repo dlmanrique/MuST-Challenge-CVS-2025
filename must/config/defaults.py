@@ -84,6 +84,7 @@ _C.TRAIN.EVAL_TRAIN = False
 # Evaluate training performance
 _C.TRAIN.FILTER_EMPTY = True
 
+_C.TRAIN.TRAIN_EVAL = False
 # ---------------------------------------------------------------------------- #
 # Augmentation options.
 # ---------------------------------------------------------------------------- #

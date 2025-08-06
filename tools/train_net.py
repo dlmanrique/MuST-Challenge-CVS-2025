@@ -388,7 +388,7 @@ def train(cfg):
         if is_eval_epoch:
             map_task, mean_map, out_files = eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, 'test')
 
-            if cur_epoch % 3 == 0:
+            if cur_epoch % 3 == 0 and cfg.TRAIN.TRAIN_EVAL:
                 map_task_train, mean_map_train, out_files_train = eval_epoch(train_eval_loader, model, train_meter_eval, cur_epoch, cfg, 'train')
             
 
