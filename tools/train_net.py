@@ -324,7 +324,7 @@ def train(cfg):
     # Perform final test
     if cfg.TEST.ENABLE:
         logger.info("Evaluating epoch: {}".format(start_epoch + 1))
-        map_task, mean_map, out_files = eval_epoch(val_loader, model, val_meter, start_epoch, cfg, 'val/test')
+        map_task, mean_map, out_files = eval_epoch(val_loader, model, val_meter, start_epoch, cfg, 'test')
         if not cfg.TRAIN.ENABLE:
             return
     elif cfg.TRAIN.ENABLE:
