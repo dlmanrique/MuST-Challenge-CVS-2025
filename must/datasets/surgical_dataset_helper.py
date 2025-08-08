@@ -183,6 +183,7 @@ def parse_bboxes_file(ann_filenames, ann_is_gt_box, detect_thresh, cfg, split):
                 breakpoint()
         
         for annotation in data['annotations']:
+
             if verify_annots(annotation,cfg,filter):
                 video_name, frame_num, width, height = id2frame[annotation['image_id']]
                 labels = {task:annotation[task] for task in cfg.TASKS.TASKS}

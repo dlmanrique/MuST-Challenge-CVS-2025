@@ -309,13 +309,13 @@ def train(cfg):
     # Create the video train and val loaders.
     train_loader = loader.construct_loader(cfg, "train")
     val_loader = loader.construct_loader(cfg, "val")
-    train_eval_loader = loader.construct_loader(cfg, "train-eval")
+    #train_eval_loader = loader.construct_loader(cfg, "train-eval")
 
     if cfg.TEMPORAL_MODULE.CHUNKS == False:
         # Create meters.
         train_meter = SurgeryMeter(len(train_loader), cfg, mode="train")
         val_meter = SurgeryMeter(len(val_loader), cfg, mode="val")
-        train_meter_eval = SurgeryMeter(len(train_eval_loader), cfg, mode="val")
+        #train_meter_eval = SurgeryMeter(len(train_eval_loader), cfg, mode="val")
     else:
         # Create meters.
         train_meter = SurgeryMeterChunks(len(train_loader), cfg, mode="train")
@@ -343,7 +343,8 @@ def train(cfg):
             assert cur_epoch != cfg.SOLVER.EARLY_STOPPING , "Early stopping"
 
         # Shuffle the dataset.
-        loader.shuffle_dataset(train_loader, cur_epoch)
+        if not cfg.DATA_LOADER.WEIGHTED_SAMPLER:
+            loader.shuffle_dataset(train_loader, cur_epoch)
 
         # Train for one epoch.
         epoch_timer.epoch_tic()

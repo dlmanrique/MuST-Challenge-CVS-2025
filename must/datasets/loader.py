@@ -7,9 +7,11 @@ import itertools
 import numpy as np
 from functools import partial
 import torch
+from tqdm import tqdm
 from torch.utils.data._utils.collate import default_collate
 from torch.utils.data.distributed import DistributedSampler
 from torch.utils.data.sampler import RandomSampler
+from torch.utils.data import WeightedRandomSampler
 
 from . import utils as utils
 from .build import build_dataset
@@ -105,8 +107,36 @@ def construct_loader(cfg, split, is_precise_bn=False):
     # Construct the dataset
     dataset = build_dataset(dataset_name, cfg, split)
     dataset[3]
-    #for i in range(len(dataset)):
-    #    dataset[i]
+    
+    #FIXME: this only works for only_challege_data, edit if neccesary
+    num_examples_by_criteria = {'c1': 791, 'c2': 1520, 'c3': 952}
+    total = 6300
+    if not isinstance(dataset, torch.utils.data.IterableDataset)and cfg.DATA_LOADER.WEIGHTED_SAMPLER==True and split=='train':
+        num_examples_1 = num_examples_by_criteria[cfg.ENDOVIS_DATASET.CRITERIA]
+        num_examples_0 = total - num_examples_1
+        
+        class_weights = torch.tensor([
+            1.0 / num_examples_0,  # peso clase 0
+            1.0 / num_examples_1   # peso clase 1
+        ], dtype=torch.float)
+
+        labels = []
+        for i in tqdm(range(len(dataset))):
+            labels.append(dataset[i][1]['cvs'])
+        labels = torch.tensor(labels)
+
+        sample_weights = class_weights[labels]
+
+        # Crear WeightedRandomSampler
+        sampler = WeightedRandomSampler(
+            weights=sample_weights,
+            num_samples=len(sample_weights), 
+            replacement=True                  
+        )
+    else:
+        sampler = utils.create_sampler(dataset, shuffle, cfg)
+
+
     if isinstance(dataset, torch.utils.data.IterableDataset):
         loader = torch.utils.data.DataLoader(
             dataset,
@@ -118,16 +148,12 @@ def construct_loader(cfg, split, is_precise_bn=False):
             worker_init_fn=utils.loader_worker_init_fn(dataset),
         )
     else:
-        # Create a sampler for multi-process training
-        sampler = utils.create_sampler(dataset, shuffle, cfg)
-        # Create a loader
         collate_func = detection_collate
-
         loader = torch.utils.data.DataLoader(
             dataset,
             batch_size=batch_size,
-            shuffle=(False if sampler else shuffle),
-            sampler=sampler,
+            shuffle=(False if sampler else shuffle),          # importante: no usar shuffle con sampler
+            sampler=sampler,        # aquí metemos el WeightedRandomSampler
             num_workers=cfg.DATA_LOADER.NUM_WORKERS,
             pin_memory=cfg.DATA_LOADER.PIN_MEMORY,
             drop_last=drop_last,

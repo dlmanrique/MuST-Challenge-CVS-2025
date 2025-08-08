@@ -5,7 +5,8 @@ TASK="CVS"
 ARCH="MViT"
 ONLINE=True
 MINI="false"
-CRITERIA='c3'
+CRITERIA='c1'
+WEIGHTED_SAMPLER=True
 
 TRAIN_FOLD="train"
 TEST_FOLD="test" 
@@ -14,7 +15,8 @@ DATA_TYPE="only_challenge_annot_data"
 FOLD_NUM=1
 FPS=30
 MAX_EPOCH=50
-TRAIN_EVAL=True
+TRAIN_EVAL=False
+
 
 if [ "$MINI" = "true" ]; then
     COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/By_criteria/mini_$TEST_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
@@ -26,7 +28,7 @@ else
     COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/By_criteria/$TEST_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
     TRAIN_GT_BOX_JSON="$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
     TEST_GT_BOX_JSON="$TEST_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
-    EXP_PREFIX="arch_$ARCH-frames_$NUM_FRAMES-sr_$SAMPLE_RATE-online_$ONLINE-data_type_$DATA_TYPE-fps_$FPS-epochs_$MAX_EPOCH"
+    EXP_PREFIX="arch_$ARCH-frames_$NUM_FRAMES-sr_$SAMPLE_RATE-online_$ONLINE-data_type_$DATA_TYPE-fps_$FPS-epochs_$MAX_EPOCH-wsampler_$WEIGHTED_SAMPLER"
 fi
 
 
@@ -46,7 +48,7 @@ export PYTHONPATH="./must:$PYTHONPATH"
 
 mkdir -p $OUTPUT_DIR
 
-CUDA_VISIBLE_DEVICES=6 python -B tools/run_net.py \
+CUDA_VISIBLE_DEVICES=7 python -B tools/run_net.py \
 --cfg $CONFIG_PATH \
 NUM_GPUS 1 \
 TRAIN.DATASET $DATASET \
@@ -60,6 +62,7 @@ TRAIN.TRAIN_EVAL $TRAIN_EVAL \
 DATA.NUM_FRAMES $NUM_FRAMES \
 DATA.SAMPLING_RATE $SAMPLE_RATE \
 DATA.ONLINE $ONLINE \
+DATA_LOADER.WEIGHTED_SAMPLER $WEIGHTED_SAMPLER \
 ENDOVIS_DATASET.FRAME_DIR $FRAME_DIR \
 ENDOVIS_DATASET.FRAME_LIST_DIR $FRAME_LIST \
 ENDOVIS_DATASET.TRAIN_LISTS "fold_"$FOLD_NUM"_"$TRAIN_FOLD"_fps_"$FPS".csv" \

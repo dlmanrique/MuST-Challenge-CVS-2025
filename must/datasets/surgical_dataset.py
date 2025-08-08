@@ -52,6 +52,8 @@ class SurgicalDataset(torch.utils.data.Dataset):
     def keyframe_mapping(self, video_idx, sec_idx, sec):
         pass
 
+        
+        
     def _load_data(self, cfg):
         """
         Load frame paths and annotations from files

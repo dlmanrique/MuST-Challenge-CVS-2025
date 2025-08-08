@@ -640,6 +640,8 @@ _C.DATA_LOADER.PIN_MEMORY = True
 # Enable multi thread decoding.
 _C.DATA_LOADER.ENABLE_MULTI_THREAD_DECODE = False
 
+_C.DATA_LOADER.WEIGHTED_SAMPLER = False
+
 
 # -----------------------------------------------------------------------------
 # Endoscopic Surgical Dataset options
