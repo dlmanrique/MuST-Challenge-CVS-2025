@@ -1,0 +1,76 @@
+# Experiment setup
+NUM_FRAMES=16
+SAMPLE_RATE=4
+TASK="CVS"
+ARCH="MViT"
+ONLINE=True
+MINI="true"
+CRITERIA='c1'
+
+TRAIN_FOLD="train"
+TEST_FOLD="test" 
+DATASET="Cvssages"
+DATA_TYPE="only_challenge_annot_data"
+FOLD_NUM=1
+FPS=30
+MAX_EPOCH=10
+TRAIN_EVAL=True
+
+if [ "$MINI" = "true" ]; then
+    COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/By_criteria/mini_$TEST_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
+    TRAIN_GT_BOX_JSON="mini_$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    TEST_GT_BOX_JSON="mini_$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    EXP_PREFIX="arch_$ARCH-frames_$NUM_FRAMES-sr_$SAMPLE_RATE-online_$ONLINE-data_type_$DATA_TYPE-fps_$FPS-debbuging_mode"
+    
+else
+    COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/By_criteria/$TEST_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
+    TRAIN_GT_BOX_JSON="$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    TEST_GT_BOX_JSON="$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    EXP_PREFIX="arch_$ARCH-frames_$NUM_FRAMES-sr_$SAMPLE_RATE-online_$ONLINE-data_type_$DATA_TYPE-fps_$FPS-epochs_$MAX_EPOCH"
+fi
+
+
+#-------------------------
+EXPERIMENT_NAME=$EXP_PREFIX"/fold_$FOLD_NUM/"$TRAIN_FOLD
+CONFIG_PATH="configs/"$DATASET"/"$ARCH"_"$TASK"_by_criteria.yaml"
+FRAME_DIR="./data/"$DATASET"/"$DATA_TYPE"/frames"
+#OUTPUT_DIR="/media/lambda001/SSD3/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
+OUTPUT_DIR="./outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
+FRAME_LIST="./data/"$DATASET"/"$DATA_TYPE"/frame_lists"
+ANNOT_DIR="./data/"$DATASET"/"$DATA_TYPE"/annotations/By_criteria/"
+CHECKPOINT="./model_weights/pretrained_models/K400_MVIT_B_16x4_CONV.pyth"
+TYPE="pytorch"
+
+
+export PYTHONPATH="./must:$PYTHONPATH"
+
+mkdir -p $OUTPUT_DIR
+
+CUDA_VISIBLE_DEVICES=3 python -B tools/run_net.py \
+--cfg $CONFIG_PATH \
+NUM_GPUS 1 \
+TRAIN.DATASET $DATASET \
+TEST.DATASET $DATASET \
+TRAIN.CHECKPOINT_FILE_PATH $CHECKPOINT \
+TRAIN.CHECKPOINT_EPOCH_RESET True \
+TRAIN.CHECKPOINT_TYPE $TYPE \
+TEST.ENABLE False \
+TRAIN.ENABLE True \
+TRAIN.TRAIN_EVAL $TRAIN_EVAL \
+DATA.NUM_FRAMES $NUM_FRAMES \
+DATA.SAMPLING_RATE $SAMPLE_RATE \
+DATA.ONLINE $ONLINE \
+ENDOVIS_DATASET.FRAME_DIR $FRAME_DIR \
+ENDOVIS_DATASET.FRAME_LIST_DIR $FRAME_LIST \
+ENDOVIS_DATASET.TRAIN_LISTS "fold_"$FOLD_NUM"_"$TRAIN_FOLD"_fps_"$FPS".csv" \
+ENDOVIS_DATASET.TEST_LISTS "fold_"$FOLD_NUM"_"$TEST_FOLD"_fps_"$FPS".csv"  \
+ENDOVIS_DATASET.ANNOTATION_DIR $ANNOT_DIR \
+ENDOVIS_DATASET.TEST_COCO_ANNS $COCO_ANN_PATH \
+ENDOVIS_DATASET.TRAIN_GT_BOX_JSON $TRAIN_GT_BOX_JSON \
+ENDOVIS_DATASET.TEST_GT_BOX_JSON $TEST_GT_BOX_JSON \
+ENDOVIS_DATASET.FOLD $FOLD_NUM \
+ENDOVIS_DATASET.DATA_TYPE $DATA_TYPE \
+TRAIN.BATCH_SIZE 24 \
+TEST.BATCH_SIZE 24 \
+SOLVER.MAX_EPOCH $MAX_EPOCH \
+OUTPUT_DIR $OUTPUT_DIR 
