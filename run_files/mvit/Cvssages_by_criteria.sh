@@ -4,8 +4,8 @@ SAMPLE_RATE=4
 TASK="CVS"
 ARCH="MViT"
 ONLINE=True
-MINI="true"
-CRITERIA='c1'
+MINI="false"
+CRITERIA='c3'
 
 TRAIN_FOLD="train"
 TEST_FOLD="test" 
@@ -13,29 +13,29 @@ DATASET="Cvssages"
 DATA_TYPE="only_challenge_annot_data"
 FOLD_NUM=1
 FPS=30
-MAX_EPOCH=10
+MAX_EPOCH=50
 TRAIN_EVAL=True
 
 if [ "$MINI" = "true" ]; then
     COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/By_criteria/mini_$TEST_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
-    TRAIN_GT_BOX_JSON="mini_$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM.json"
-    TEST_GT_BOX_JSON="mini_$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    TRAIN_GT_BOX_JSON="mini_$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
+    TEST_GT_BOX_JSON="mini_$TEST_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
     EXP_PREFIX="arch_$ARCH-frames_$NUM_FRAMES-sr_$SAMPLE_RATE-online_$ONLINE-data_type_$DATA_TYPE-fps_$FPS-debbuging_mode"
     
 else
     COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/By_criteria/$TEST_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
-    TRAIN_GT_BOX_JSON="$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM.json"
-    TEST_GT_BOX_JSON="$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
+    TRAIN_GT_BOX_JSON="$TRAIN_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
+    TEST_GT_BOX_JSON="$TEST_FOLD"_"long-term_fold_$FOLD_NUM"_criteria_$CRITERIA".json"
     EXP_PREFIX="arch_$ARCH-frames_$NUM_FRAMES-sr_$SAMPLE_RATE-online_$ONLINE-data_type_$DATA_TYPE-fps_$FPS-epochs_$MAX_EPOCH"
 fi
 
 
 #-------------------------
-EXPERIMENT_NAME=$EXP_PREFIX"/fold_$FOLD_NUM/"$TRAIN_FOLD
+EXPERIMENT_NAME=By_criteria/$CRITERIA/$EXP_PREFIX"/fold_$FOLD_NUM/"$TRAIN_FOLD
 CONFIG_PATH="configs/"$DATASET"/"$ARCH"_"$TASK"_by_criteria.yaml"
 FRAME_DIR="./data/"$DATASET"/"$DATA_TYPE"/frames"
-#OUTPUT_DIR="/media/lambda001/SSD3/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
-OUTPUT_DIR="./outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
+OUTPUT_DIR="/media/lambda001/SSD3/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
+#OUTPUT_DIR="./outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
 FRAME_LIST="./data/"$DATASET"/"$DATA_TYPE"/frame_lists"
 ANNOT_DIR="./data/"$DATASET"/"$DATA_TYPE"/annotations/By_criteria/"
 CHECKPOINT="./model_weights/pretrained_models/K400_MVIT_B_16x4_CONV.pyth"
@@ -46,7 +46,7 @@ export PYTHONPATH="./must:$PYTHONPATH"
 
 mkdir -p $OUTPUT_DIR
 
-CUDA_VISIBLE_DEVICES=3 python -B tools/run_net.py \
+CUDA_VISIBLE_DEVICES=6 python -B tools/run_net.py \
 --cfg $CONFIG_PATH \
 NUM_GPUS 1 \
 TRAIN.DATASET $DATASET \
@@ -70,6 +70,7 @@ ENDOVIS_DATASET.TRAIN_GT_BOX_JSON $TRAIN_GT_BOX_JSON \
 ENDOVIS_DATASET.TEST_GT_BOX_JSON $TEST_GT_BOX_JSON \
 ENDOVIS_DATASET.FOLD $FOLD_NUM \
 ENDOVIS_DATASET.DATA_TYPE $DATA_TYPE \
+ENDOVIS_DATASET.CRITERIA $CRITERIA \
 TRAIN.BATCH_SIZE 24 \
 TEST.BATCH_SIZE 24 \
 SOLVER.MAX_EPOCH $MAX_EPOCH \

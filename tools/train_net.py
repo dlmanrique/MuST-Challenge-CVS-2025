@@ -120,7 +120,7 @@ def train_epoch(
                     preds[task] = preds[task][~sequence_mask]
                     labels[task] = labels[task][~sequence_mask]
 
-                loss.append(loss_fun(preds[task], labels[task].to(target_type))) 
+                loss.append(loss_fun(preds[task].squeeze(), labels[task].to(target_type))) 
 
         if len(loss_dict) >1:
             final_loss = losses.compute_weighted_loss(loss, loss_weights)

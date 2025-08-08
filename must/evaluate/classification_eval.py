@@ -64,22 +64,9 @@ def eval_classification(task, coco_anns, preds, img_ann_dict, mask_path):
     true_labels = np.array(true_labels)
     predicted_probabilities = np.array(predicted_probabilities)
 
-    average_precisions = []
-    for class_idx in range(true_labels.shape[1]):
-        class_true = true_labels[:, class_idx]
-        class_scores = predicted_probabilities[:, class_idx]
-        average_precision = average_precision_score(class_true, class_scores)
-        average_precisions.append(average_precision)
+    average_precision = average_precision_score(true_labels, predicted_probabilities)
 
-    # Calculate the mean of the average precisions across all classes to obtain mAP
-    mAP = np.mean(average_precisions)
-    C1_ap = average_precisions[0]
-    C2_ap = average_precisions[1]
-    C3_ap = average_precisions[2]
-    
-    cat_names = ['C1', 'C2', 'C3']
-    ap = [C1_ap, C2_ap, C3_ap]
-    return mAP, dict(zip(cat_names, ap))
+    return average_precision
 
 
 def eval_precision(task, coco_anns, preds, img_ann_dict, mask_path):

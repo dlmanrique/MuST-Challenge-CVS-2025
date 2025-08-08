@@ -57,8 +57,8 @@ def eval_task(task, metric, coco_anns, preds, masks_path):
     except KeyError:
         raise NotImplementedError(f'Metric {metric} is not supported')
     
-    main_metric, aux_metrics = metric_funct(task, coco_anns, preds, img_ann_dict, masks_path)
-    return main_metric, aux_metrics
+    main_metric = metric_funct(task, coco_anns, preds, img_ann_dict, masks_path)
+    return main_metric
 
 def main_per_task(coco_ann_path, pred_path, task, metric, masks_path=None):
 
@@ -66,10 +66,9 @@ def main_per_task(coco_ann_path, pred_path, task, metric, masks_path=None):
     coco_anns = load_json(coco_ann_path)
     preds = load_json(pred_path) if type(pred_path)==str else pred_path
 
-    task_eval, aux_metrics = eval_task(task, metric, coco_anns, preds, masks_path)
-    aux_metrics = dict(zip(aux_metrics.keys(),map(lambda x: round(x,3), aux_metrics.values())))
-    print('{} task {}: {} {}'.format(task, metric, round(task_eval,3), aux_metrics))
+    task_eval = eval_task(task, metric, coco_anns, preds, masks_path)
+    print('{} task {}: {} '.format(task, metric, round(task_eval,3)))
     
     final_metrics = {metric: round(task_eval,8)}
-    final_metrics.update(aux_metrics)    
+ 
     return final_metrics

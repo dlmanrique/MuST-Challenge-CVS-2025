@@ -2,3 +2,4 @@ model_weights/
 outputs/
 data/
 wandb/
+model_weights/pretrained_models/

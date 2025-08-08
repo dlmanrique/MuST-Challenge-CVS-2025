@@ -716,6 +716,8 @@ _C.ENDOVIS_DATASET.FOLD = 1
 
 _C.ENDOVIS_DATASET.DATA_TYPE = ''
 
+_C.ENDOVIS_DATASET.CRITERIA = ''
+
 # -----------------------------------------------------------------------------
 # Classification heads options
 # -----------------------------------------------------------------------------
