@@ -30,6 +30,11 @@ class Cvssages(SurgicalDataset):
         self.image_type = "jpg"
         self.cfg = cfg
         super().__init__(cfg,split)
+
+        log_path = "padding_log.txt"
+
+        with open(log_path, "w") as f:
+            f.write("=== Padding Log ===\n")
     
     def keyframe_mapping(self, video_idx, sec_idx, sec):
         #breakpoint()
@@ -96,6 +101,7 @@ class Cvssages(SurgicalDataset):
             image_paths, backend=self.cfg.ENDOVIS_DATASET.IMG_PROC_BACKEND
         )
         
+
         # Preprocess images and boxes
         imgs = self._images_and_boxes_preprocessing_cv2(
             imgs

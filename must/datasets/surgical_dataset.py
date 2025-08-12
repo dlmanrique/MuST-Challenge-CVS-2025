@@ -164,15 +164,37 @@ class SurgicalDataset(torch.utils.data.Dataset):
                 )
 
         elif self._split == "val" or self.cfg.DATA.JUST_CENTER:
+
             # Short side to test_scale. Non-local and STRG uses 256.
             if self.cfg.DATA.FIXED_RESIZE:
                 imgs = [cv2_transform.scale_resize(250, img) for img in imgs]
             else:
+                # De aca los frames me salen con el primer shape fijo en 224 y el otro se ajusta proporcional
                 imgs = [cv2_transform.scale(self._crop_size, img) for img in imgs]
 
-            imgs= cv2_transform.spatial_shift_crop_list(
+            """imgs= cv2_transform.spatial_shift_crop_list(
                 self._crop_size, imgs, 1
-            )
+            )"""
+
+            target_h = target_w = self._crop_size
+            cropped_imgs = cv2_transform.spatial_shift_crop_list(target_h, imgs, 1)
+
+            log_path = "padding_log.txt"
+
+            imgs = []
+            with open(log_path, "a") as log_file:  # "a" para ir agregando líneas
+                for img in cropped_imgs:
+                    if img.shape[:2] != (target_h, target_w):
+                        log_file.write(f"PADDING APPLIED | Original shape: {img.shape}\n")
+                        img = np.pad(
+                            img,
+                            ((0, target_h - img.shape[0]),
+                            (0, target_w - img.shape[1]),
+                            (0, 0)),
+                            mode='constant',
+                            constant_values=0
+                        ).astype(np.uint8)
+                    imgs.append(img)
 
             if not self.cfg.DATA.JUST_CENTER and self._test_force_flip:
                 imgs = cv2_transform.horizontal_flip_list(

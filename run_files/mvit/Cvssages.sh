@@ -1,19 +1,19 @@
 # Experiment setup
 NUM_FRAMES=16
-SAMPLE_RATE=4
+SAMPLE_RATE=3
 TASK="CVS"
 ARCH="MViT"
 ONLINE=True
-MINI="true"
+MINI="false"
 
 TRAIN_FOLD="train"
 TEST_FOLD="test" 
 DATASET="Cvssages"
-DATA_TYPE="only_challenge_annot_data"
+DATA_TYPE="preprocessed_challenge_annot_data"
 FOLD_NUM=1
 FPS=30
 MAX_EPOCH=10
-TRAIN_EVAL=True
+TRAIN_EVAL=False
 
 if [ "$MINI" = "true" ]; then
     COCO_ANN_PATH="./data/"$DATASET"/"$DATA_TYPE"/annotations/mini_$TEST_FOLD"_"long-term_fold_$FOLD_NUM.json"
@@ -32,7 +32,7 @@ fi
 #-------------------------
 EXPERIMENT_NAME=$EXP_PREFIX"/fold_$FOLD_NUM/"$TRAIN_FOLD
 CONFIG_PATH="configs/"$DATASET"/"$ARCH"_"$TASK".yaml"
-FRAME_DIR="./data/"$DATASET"/"$DATA_TYPE"/frames"
+FRAME_DIR="./data/"$DATASET"/"$DATA_TYPE"/frames_cutmargin_reindex"
 #OUTPUT_DIR="/media/lambda001/SSD3/dlmanrique/Endovis/CVS_Challenge/Models/MuST-Challenge-CVS-2025/outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
 OUTPUT_DIR="./outputs/"$DATASET"/"$TASK"/"$EXPERIMENT_NAME
 FRAME_LIST="./data/"$DATASET"/"$DATA_TYPE"/frame_lists"
